@@ -1,0 +1,31 @@
+export const siteConfig = {
+  name: "College Guide",
+  description: "Tamil Nadu's Premier College Discovery & Admission Guidance Platform. Helping students make confident educational choices.",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "919876543210",
+  whatsappDefaultMessage: process.env.NEXT_PUBLIC_WHATSAPP_DEFAULT_MESSAGE || "Hi College Guide, I need admission guidance.",
+  navLinks: [
+    { label: "Home", href: "/" },
+    { label: "Explore Colleges", href: "/colleges" },
+    { label: "Categories", href: "/categories" },
+    { label: "Locations", href: "/locations" },
+    { label: "About Us", href: "/about" },
+  ],
+  categories: [
+    { id: "engineering", title: "Engineering", icon: "Cpu", description: "B.E / B.Tech courses across top institutions" },
+    { id: "medical", title: "Medical & Dental", icon: "Activity", description: "MBBS, BDS, Allied Health Sciences" },
+    { id: "nursing", title: "Nursing & Pharmacy", icon: "HeartPulse", description: "B.Sc Nursing, B.Pharm & Paramedical" },
+    { id: "law", title: "Law", icon: "Scale", description: "5-year integrated & 3-year LLB programs" },
+    { id: "arts-science", title: "Arts & Science", icon: "BookOpen", description: "B.Sc, B.Com, B.A & Management" },
+  ],
+  featuredLocations: [
+    "Chennai",
+    "Coimbatore",
+    "Tiruchirappalli",
+    "Madurai",
+    "Salem",
+    "Tirunelveli",
+    "Vellore",
+    "Erode",
+  ],
+};
