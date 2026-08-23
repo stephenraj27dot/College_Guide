@@ -27,6 +27,8 @@ import {
   HeartPulse,
   Scale,
   BookOpen,
+  Wand2,
+  Sparkles,
 } from "lucide-react";
 
 export default function Home() {
@@ -207,6 +209,54 @@ export default function Home() {
                 </div>
               </Link>
             ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* Find My College CTA Banner */}
+      <section className="py-12 bg-gradient-to-r from-purple-950 via-blue-950 to-slate-950 border-b border-slate-800">
+        <Container size="lg">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="space-y-4 max-w-xl">
+              <Badge className="bg-purple-600/30 text-purple-300 border-purple-600/40 gap-1.5">
+                <Wand2 className="h-3.5 w-3.5" />
+                AI-Guided Discovery
+              </Badge>
+              <h2 className="text-3xl font-extrabold text-white">
+                Not Sure Which College to Choose?
+              </h2>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                Answer 3 quick questions about your stream, preferred location, and requirements — and we&apos;ll show you your best college matches with a compatibility score.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/find-my-college">
+                  <Button variant="primary" size="lg" className="bg-purple-600 hover:bg-purple-700 gap-2 font-bold">
+                    <Sparkles className="h-5 w-5" />
+                    Find My College
+                  </Button>
+                </Link>
+                <Link href="/colleges">
+                  <Button variant="outline" size="lg" className="gap-2 border-slate-600 text-white hover:bg-slate-800">
+                    <ArrowRight className="h-4 w-4" />
+                    Browse All Colleges
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Steps visual */}
+            <div className="flex flex-col gap-3 lg:min-w-[300px]">
+              {[
+                { step: "01", label: "Select your education stream", color: "text-purple-400" },
+                { step: "02", label: "Choose your preferred location", color: "text-blue-400" },
+                { step: "03", label: "Set hostel & transport needs", color: "text-emerald-400" },
+              ].map((item) => (
+                <div key={item.step} className="flex items-center gap-4 bg-white/5 rounded-xl p-4 border border-white/10">
+                  <span className={`text-2xl font-extrabold ${item.color}`}>{item.step}</span>
+                  <span className="text-sm text-slate-300 font-medium">{item.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </Container>
       </section>

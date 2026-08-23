@@ -6,11 +6,16 @@ import { getColleges } from "@/services/colleges";
 import { DetailedCollege } from "@/lib/mockData";
 import { Container } from "@/components/layout/Container";
 import { CollegeCard } from "@/components/college/CollegeCard";
+import { CompareDrawer } from "@/components/college/CompareDrawer";
 import { CollegeFilter } from "@/components/search/CollegeFilter";
 import { CollegeSearch } from "@/components/search/CollegeSearch";
 import { GuidanceModal } from "@/components/guidance/GuidanceModal";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, SearchX } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useShortlist } from "@/hooks/useShortlist";
+import { useCompare } from "@/hooks/useCompare";
+import { Heart, Loader2, SearchX } from "lucide-react";
+import Link from "next/link";
 
 function CollegesContent() {
   const searchParams = useSearchParams();
@@ -28,6 +33,9 @@ function CollegesContent() {
   const [selectedCollegeForGuidance, setSelectedCollegeForGuidance] =
     useState<DetailedCollege | null>(null);
   const [isGuidanceModalOpen, setIsGuidanceModalOpen] = useState(false);
+
+  const { isShortlisted, toggle: toggleShortlist, count: shortlistCount } = useShortlist();
+  const { compareList, isInCompare, toggleCompare, removeFromCompare, clear: clearCompare, canAdd } = useCompare();
 
   useEffect(() => {
     let isMounted = true;
@@ -62,19 +70,35 @@ function CollegesContent() {
   };
 
   return (
-    <div className="py-12 bg-slate-50 dark:bg-slate-950 min-h-screen">
+    <div className="py-12 bg-slate-50 dark:bg-slate-950 min-h-screen pb-36">
       <Container size="lg" className="space-y-8">
         {/* Page Header */}
-        <div className="space-y-2">
-          <Badge variant="default" className="bg-blue-600 text-white">
-            Tamil Nadu Institution Discovery
-          </Badge>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Browse Colleges & Institutions
-          </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Explore verified colleges across engineering, medical, law, nursing, and arts & science in Tamil Nadu.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="space-y-2">
+            <Badge variant="default" className="bg-blue-600 text-white">
+              Tamil Nadu Institution Discovery
+            </Badge>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Browse Colleges & Institutions
+            </h1>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Explore verified colleges across engineering, medical, law, nursing, and arts & science in Tamil Nadu.
+            </p>
+          </div>
+
+          {/* Shortlist quick-access */}
+          {shortlistCount > 0 && (
+            <Link href="/shortlist">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 border-rose-300 text-rose-600 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-950/40 whitespace-nowrap"
+              >
+                <Heart className="h-4 w-4 fill-rose-500 text-rose-500" />
+                <span>My Shortlist ({shortlistCount})</span>
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Search & Filter Layout */}
@@ -142,6 +166,11 @@ function CollegesContent() {
                     key={college.id}
                     college={college}
                     onOpenGuidanceModal={handleOpenGuidanceModal}
+                    isShortlisted={isShortlisted(college.id)}
+                    onShortlistToggle={(c) => toggleShortlist(c.id)}
+                    isInCompare={isInCompare(college.id)}
+                    onCompareToggle={toggleCompare}
+                    compareDisabled={!canAdd && !isInCompare(college.id)}
                   />
                 ))}
               </div>
@@ -155,6 +184,13 @@ function CollegesContent() {
         isOpen={isGuidanceModalOpen}
         onClose={() => setIsGuidanceModalOpen(false)}
         targetCollege={selectedCollegeForGuidance}
+      />
+
+      {/* Compare Floating Drawer */}
+      <CompareDrawer
+        compareList={compareList}
+        onRemove={removeFromCompare}
+        onClear={clearCompare}
       />
     </div>
   );

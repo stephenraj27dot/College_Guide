@@ -10,14 +10,17 @@ import { LeadMetrics } from "@/components/admin/LeadMetrics";
 import { LeadKanban } from "@/components/admin/LeadKanban";
 import { LeadTable } from "@/components/admin/LeadTable";
 import { LeadDetailDrawer } from "@/components/admin/LeadDetailDrawer";
+import { AnalyticsCharts } from "@/components/admin/AnalyticsCharts";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, LayoutGrid, List, RefreshCw } from "lucide-react";
+import { Search, LayoutGrid, List, RefreshCw, BarChart2 } from "lucide-react";
+
+type ViewMode = "kanban" | "table" | "analytics";
 
 export default function AdminDashboardPage() {
   const [role, setRole] = useState<"admin" | "counsellor">("admin");
-  const [viewMode, setViewMode] = useState<"kanban" | "table">("kanban");
+  const [viewMode, setViewMode] = useState<ViewMode>("kanban");
 
   const [leads, setLeads] = useState<DetailedLead[]>([]);
   const [metrics, setMetrics] = useState({
@@ -72,6 +75,12 @@ export default function AdminDashboardPage() {
     };
   }, [searchQuery, statusFilter, priorityFilter]);
 
+  const viewTabs: { id: ViewMode; label: string; icon: React.ReactNode }[] = [
+    { id: "kanban", label: "Pipeline", icon: <LayoutGrid className="h-4 w-4" /> },
+    { id: "table", label: "Table", icon: <List className="h-4 w-4" /> },
+    { id: "analytics", label: "Analytics", icon: <BarChart2 className="h-4 w-4" /> },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
       {/* Top Header & Role Selector */}
@@ -113,86 +122,81 @@ export default function AdminDashboardPage() {
           {/* KPI Analytics Metric Cards */}
           <LeadMetrics metrics={metrics} />
 
-          {/* Controls: Search, Filters & View Toggle */}
+          {/* View Tab Switcher + Controls */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-4 rounded-xl">
-            {/* Search Input */}
-            <div className="relative w-full md:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
-                type="text"
-                placeholder="Search lead ref, student name, or phone..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-slate-950 border-slate-800 text-xs h-9"
-              />
+            {/* View Tabs */}
+            <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 gap-1">
+              {viewTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setViewMode(tab.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    viewMode === tab.id
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {tab.icon}
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
-            {/* Filter Selects */}
-            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as LeadStatus | "")}
-                className="h-9 rounded-lg border border-slate-800 bg-slate-950 px-3 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">All Statuses</option>
-                <option value="NEW">New</option>
-                <option value="CONTACTED">Contacted</option>
-                <option value="COUNSELLING">Counselling</option>
-                <option value="COLLEGE_SHORTLISTED">Shortlisted</option>
-                <option value="ADMITTED">Admitted</option>
-              </select>
+            {/* Search & Filters — only relevant for pipeline/table views */}
+            {viewMode !== "analytics" && (
+              <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <div className="relative w-full md:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    type="text"
+                    placeholder="Search lead ref, student, phone..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 bg-slate-950 border-slate-800 text-xs h-9"
+                  />
+                </div>
 
-              <select
-                value={priorityFilter}
-                onChange={(e) => setPriorityFilter(e.target.value as LeadPriority | "")}
-                className="h-9 rounded-lg border border-slate-800 bg-slate-950 px-3 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">All Priorities</option>
-                <option value="HIGH">High Intent</option>
-                <option value="MEDIUM">Medium Intent</option>
-                <option value="LOW">Low Intent</option>
-              </select>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as LeadStatus | "")}
+                  className="h-9 rounded-lg border border-slate-800 bg-slate-950 px-3 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="NEW">New</option>
+                  <option value="CONTACTED">Contacted</option>
+                  <option value="COUNSELLING">Counselling</option>
+                  <option value="COLLEGE_SHORTLISTED">Shortlisted</option>
+                  <option value="ADMITTED">Admitted</option>
+                </select>
 
-              {/* View Toggle */}
-              <div className="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800">
-                <button
-                  onClick={() => setViewMode("kanban")}
-                  className={`p-1.5 rounded transition-colors ${
-                    viewMode === "kanban"
-                      ? "bg-blue-600 text-white"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                  title="Kanban Board View"
+                <select
+                  value={priorityFilter}
+                  onChange={(e) => setPriorityFilter(e.target.value as LeadPriority | "")}
+                  className="h-9 rounded-lg border border-slate-800 bg-slate-950 px-3 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
-                  <LayoutGrid className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode("table")}
-                  className={`p-1.5 rounded transition-colors ${
-                    viewMode === "table"
-                      ? "bg-blue-600 text-white"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                  title="Table View"
-                >
-                  <List className="h-4 w-4" />
-                </button>
+                  <option value="">All Priorities</option>
+                  <option value="HIGH">High Intent</option>
+                  <option value="MEDIUM">Medium Intent</option>
+                  <option value="LOW">Low Intent</option>
+                </select>
               </div>
-            </div>
+            )}
           </div>
 
-          {/* Main Pipeline Display */}
-          {viewMode === "kanban" ? (
+          {/* Main Content by View Mode */}
+          {viewMode === "kanban" && (
             <LeadKanban
               leads={leads}
               onSelectLead={(lead) => setSelectedLeadId(lead.id)}
             />
-          ) : (
+          )}
+          {viewMode === "table" && (
             <LeadTable
               leads={leads}
               onSelectLead={(lead) => setSelectedLeadId(lead.id)}
             />
           )}
+          {viewMode === "analytics" && <AnalyticsCharts />}
         </Container>
       </main>
 

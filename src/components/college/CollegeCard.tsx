@@ -4,14 +4,35 @@ import { DetailedCollege } from "@/lib/mockData";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Award, Home, ArrowRight, PhoneCall } from "lucide-react";
+import {
+  MapPin,
+  Award,
+  Home,
+  ArrowRight,
+  PhoneCall,
+  Heart,
+  GitCompareArrows,
+} from "lucide-react";
 
 interface CollegeCardProps {
   college: DetailedCollege;
   onOpenGuidanceModal?: (college: DetailedCollege) => void;
+  isShortlisted?: boolean;
+  onShortlistToggle?: (college: DetailedCollege) => void;
+  isInCompare?: boolean;
+  onCompareToggle?: (college: DetailedCollege) => void;
+  compareDisabled?: boolean; // true when compare list is full and this college isn't in it
 }
 
-export function CollegeCard({ college, onOpenGuidanceModal }: CollegeCardProps) {
+export function CollegeCard({
+  college,
+  onOpenGuidanceModal,
+  isShortlisted = false,
+  onShortlistToggle,
+  isInCompare = false,
+  onCompareToggle,
+  compareDisabled = false,
+}: CollegeCardProps) {
   return (
     <Card className="flex flex-col h-full overflow-hidden border-slate-200 dark:border-slate-800 hover:border-blue-500/50 hover:shadow-lg transition-all duration-300 group">
       {/* Banner / Image Container */}
@@ -45,19 +66,38 @@ export function CollegeCard({ college, onOpenGuidanceModal }: CollegeCardProps) 
           )}
         </div>
 
-        {college.hostel_available && (
-          <div className="absolute top-3 right-3 z-10">
+        {/* Top-right action cluster: Hostel + Shortlist */}
+        <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
+          {college.hostel_available && (
             <Badge variant="secondary" className="bg-slate-900/80 text-white backdrop-blur border-none text-[10px]">
               <Home className="h-3 w-3 mr-1 text-emerald-400" />
               Hostel
             </Badge>
-          </div>
-        )}
+          )}
+          {/* Shortlist toggle button */}
+          {onShortlistToggle && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                onShortlistToggle(college);
+              }}
+              aria-label={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
+              title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
+              className={`h-8 w-8 rounded-full flex items-center justify-center backdrop-blur shadow-md transition-all duration-200 ${
+                isShortlisted
+                  ? "bg-rose-500 text-white scale-110"
+                  : "bg-slate-900/70 text-white hover:bg-rose-500"
+              }`}
+            >
+              <Heart className={`h-4 w-4 ${isShortlisted ? "fill-white" : ""}`} />
+            </button>
+          )}
+        </div>
       </div>
 
       <CardHeader className="p-5 pb-3">
         <div className="flex items-start justify-between gap-2">
-          <div>
+          <div className="min-w-0">
             <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
               {college.institution_type}
             </span>
@@ -97,9 +137,31 @@ export function CollegeCard({ college, onOpenGuidanceModal }: CollegeCardProps) 
             )}
           </div>
         </div>
+
+        {/* Compare toggle */}
+        {onCompareToggle && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              if (!compareDisabled) onCompareToggle(college);
+            }}
+            disabled={compareDisabled}
+            aria-label={isInCompare ? "Remove from compare" : "Add to compare"}
+            className={`flex items-center gap-1.5 text-[11px] font-semibold rounded-md px-2.5 py-1 transition-all duration-200 border ${
+              isInCompare
+                ? "bg-blue-600 text-white border-blue-600"
+                : compareDisabled
+                ? "border-slate-200 dark:border-slate-700 text-slate-400 cursor-not-allowed"
+                : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-blue-500 hover:text-blue-600"
+            }`}
+          >
+            <GitCompareArrows className="h-3.5 w-3.5" />
+            {isInCompare ? "In Compare" : compareDisabled ? "Compare Full" : "Add to Compare"}
+          </button>
+        )}
       </CardContent>
 
-      <CardFooter className="p-5 pt-0 border-t border-slate-100 dark:border-slate-800/80 mt-auto flex items-center justify-between gap-2 pt-3">
+      <CardFooter className="p-5 pt-3 border-t border-slate-100 dark:border-slate-800/80 mt-auto flex items-center justify-between gap-2">
         <Link href={`/colleges/${college.slug}`} className="flex-1">
           <Button variant="outline" size="sm" className="w-full text-xs gap-1">
             <span>View Profile</span>
