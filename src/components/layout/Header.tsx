@@ -15,15 +15,15 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md">
-              <GraduationCap className="h-6 w-6" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-md overflow-hidden p-0.5 border border-slate-100 dark:border-slate-800">
+              <img src="/favicon.ico" alt="College Guide Logo" className="h-full w-full object-contain" />
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
                 College Guide
               </span>
-              <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400">
-                Tamil Nadu Admission Guidance
+              <span className="text-[10px] font-bold text-amber-500 dark:text-amber-400 tracking-wide uppercase">
+                Your Path • Our Guide
               </span>
             </div>
           </Link>

@@ -10,6 +10,37 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Primary Blue overridden to Logo Navy (mapping core navy to 600 for standard usage) */
+  --color-blue-50: #eef2f6;
+  --color-blue-100: #d5e0ee;
+  --color-blue-200: #afc7e1;
+  --color-blue-300: #7ea5cf;
+  --color-blue-400: #5181ba;
+  --color-blue-500: #3565a0;
+  --color-blue-600: #0f2e53;
+  --color-blue-700: #0d2646;
+  --color-blue-800: #0a1f3a;
+  --color-blue-900: #081a30;
+  --color-blue-950: #05101d;
+
+  /* Overriding Slate for a Navy-tinted dark mode theme */
+  --color-slate-50: #f7f9fa;
+  --color-slate-100: #eef2f5;
+  --color-slate-200: #dce4eb;
+  --color-slate-300: #c1d0dc;
+  --color-slate-400: #9cb5c7;
+  --color-slate-500: #7b99b0;
+  --color-slate-600: #627d94;
+  --color-slate-700: #4f6479;
+  --color-slate-800: #425363;
+  --color-slate-900: #142233;
+  --color-slate-950: #0a121c;
+
+  /* Logo Gold/Yellow mapped to amber */
+  --color-amber-400: #fad44a;
+  --color-amber-500: #f8b835;
+  --color-amber-600: #e09f20;
 }
 
 @media (prefers-color-scheme: dark) {
