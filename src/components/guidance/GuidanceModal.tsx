@@ -1,32 +1,36 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { DetailedCollege } from "@/lib/mockData";
 import { siteConfig } from "@/config/site";
 import { leadGuidanceSchema, LeadGuidanceInput } from "@/lib/validation/schemas";
-import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { PhoneCall, MessageCircle, CheckCircle2, ShieldCheck } from "lucide-react";
+import { X, CheckCircle2, PhoneCall, MessageCircle, ShieldCheck } from "lucide-react";
 
-export default function GuidancePage() {
-  const searchParams = useSearchParams();
-  const targetCollegeSlug = searchParams.get("college") || "";
+interface GuidanceModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  targetCollege?: DetailedCollege | null;
+}
 
+export function GuidanceModal({ isOpen, onClose, targetCollege }: GuidanceModalProps) {
   const [formData, setFormData] = useState<LeadGuidanceInput>({
     name: "",
     phone: "",
     email: "",
-    preferredCategory: "",
-    preferredLocation: "",
-    message: targetCollegeSlug ? `Interested in admission guidance for ${targetCollegeSlug}` : "",
+    preferredCategory: targetCollege?.category_slug || "",
+    preferredLocation: targetCollege?.city || "",
+    message: "",
     preferredCallbackTime: "Anytime",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +49,7 @@ export default function GuidancePage() {
     }
 
     setIsSubmitting(true);
+    // Simulate lead generation dispatch to College Guide counsellors
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
@@ -52,59 +57,87 @@ export default function GuidancePage() {
   };
 
   const whatsappUrl = `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(
-    `Hi College Guide, I am ${formData.name || "a student"}. I need admission guidance.`
+    `Hi College Guide, I am ${formData.name || "a student"}. I need admission guidance${
+      targetCollege ? ` for ${targetCollege.name}` : ""
+    }.`
   )}`;
 
   return (
-    <div className="py-16 bg-slate-50 dark:bg-slate-950 min-h-screen">
-      <Container size="md" className="space-y-8">
-        <div className="text-center max-w-xl mx-auto space-y-3">
-          <Badge variant="success" className="bg-emerald-600 text-white">
-            Official Admission Guidance
-          </Badge>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Talk to an Admission Expert
-          </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Submit your details below to receive personalized counselling regarding engineering, medical, law, nursing, and arts college admissions across Tamil Nadu.
-          </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-5">
+          <div className="flex items-center space-x-2">
+            <div className="p-2 rounded-lg bg-blue-600 text-white">
+              <PhoneCall className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white">
+                Get Admission Guidance
+              </h3>
+              <p className="text-xs text-slate-500">
+                Direct College Guide Counsellor Support
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full p-1 transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl p-8 max-w-xl mx-auto">
+        {/* Content */}
+        <div className="p-6">
           {isSubmitted ? (
-            <div className="text-center py-8 space-y-6">
-              <div className="h-16 w-16 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center mx-auto">
-                <CheckCircle2 className="h-10 w-10" />
+            <div className="text-center py-6 space-y-4">
+              <div className="h-14 w-14 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center mx-auto">
+                <CheckCircle2 className="h-8 w-8" />
               </div>
-              <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-                  Guidance Request Submitted!
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Thank you <strong className="text-slate-900 dark:text-white">{formData.name}</strong>. Our expert admission counsellor will contact you at{" "}
-                  <strong className="text-slate-900 dark:text-white">{formData.phone}</strong> during your preferred callback time.
+              <div className="space-y-1">
+                <h4 className="text-xl font-bold text-slate-900 dark:text-white">
+                  Guidance Request Received!
+                </h4>
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  Our official admission expert will call you shortly on{" "}
+                  <strong className="text-slate-900 dark:text-white">{formData.phone}</strong>.
                 </p>
               </div>
 
-              <div className="pt-4 flex flex-col gap-3">
+              <div className="pt-4 flex flex-col gap-2">
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                  <Button variant="whatsapp" size="lg" className="w-full gap-2">
-                    <MessageCircle className="h-5 w-5" />
-                    <span>WhatsApp Us Immediately</span>
+                  <Button variant="whatsapp" className="w-full gap-2">
+                    <MessageCircle className="h-4 w-4" />
+                    <span>Connect Immediately on WhatsApp</span>
                   </Button>
                 </a>
+                <Button variant="outline" size="sm" onClick={onClose} className="w-full">
+                  Close Window
+                </Button>
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {targetCollege && (
+                <div className="rounded-lg bg-blue-50 dark:bg-blue-950/50 p-3 border border-blue-100 dark:border-blue-900 flex items-center justify-between text-xs">
+                  <span className="font-semibold text-blue-900 dark:text-blue-200 line-clamp-1">
+                    Target: {targetCollege.name}
+                  </span>
+                  <Badge variant="default" className="shrink-0">
+                    {targetCollege.city}
+                  </Badge>
+                </div>
+              )}
+
               {/* Full Name */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Student Name <span className="text-red-500">*</span>
+                  Full Name <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="text"
-                  placeholder="Enter your full name"
+                  placeholder="e.g. Stephen Raj"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   error={errors.name}
@@ -112,7 +145,7 @@ export default function GuidancePage() {
               </div>
 
               {/* Mobile Number */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Mobile Number <span className="text-red-500">*</span>
                 </label>
@@ -125,32 +158,18 @@ export default function GuidancePage() {
                 />
               </div>
 
-              {/* Email (Optional) */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Email Address (Optional)
-                </label>
-                <Input
-                  type="email"
-                  placeholder="student@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  error={errors.email}
-                />
-              </div>
-
-              {/* Select Category */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
+              {/* Category Preference */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
                   <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Preferred Stream
+                    Category
                   </label>
                   <select
                     value={formData.preferredCategory}
                     onChange={(e) => setFormData({ ...formData, preferredCategory: e.target.value })}
                     className="w-full h-10 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-xs text-slate-900 dark:text-slate-100"
                   >
-                    <option value="">Select Stream</option>
+                    <option value="">Select Category</option>
                     {siteConfig.categories.map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.title}
@@ -159,9 +178,9 @@ export default function GuidancePage() {
                   </select>
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Preferred Callback Time
+                    Callback Preference
                   </label>
                   <select
                     value={formData.preferredCallbackTime}
@@ -186,23 +205,22 @@ export default function GuidancePage() {
                 <Button
                   type="submit"
                   variant="primary"
-                  size="lg"
-                  className="w-full bg-blue-600 hover:bg-blue-700 font-semibold gap-2"
+                  className="w-full bg-blue-600 hover:bg-blue-700 font-semibold"
                   disabled={isSubmitting}
                 >
-                  <PhoneCall className="h-4 w-4" />
-                  <span>{isSubmitting ? "Submitting..." : "Submit Guidance Request"}</span>
+                  {isSubmitting ? "Submitting..." : "Submit Guidance Request"}
                 </Button>
               </div>
 
-              <div className="flex items-center justify-center space-x-1.5 text-xs text-slate-400 pt-2">
-                <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                <span>100% Confidential • College Guide Counsellor Support</span>
+              {/* Trust Footer */}
+              <div className="flex items-center justify-center space-x-1 text-[11px] text-slate-400 pt-2">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+                <span>Your information is safely handled by College Guide experts only.</span>
               </div>
             </form>
           )}
         </div>
-      </Container>
+      </div>
     </div>
   );
 }
