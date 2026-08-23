@@ -2,7 +2,7 @@ import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, MessageCircle, PhoneCall } from "lucide-react";
+import { MessageCircle, PhoneCall } from "lucide-react";
 
 export function Header() {
   const whatsappUrl = `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(

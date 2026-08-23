@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Users, LayoutDashboard, ExternalLink } from "lucide-react";
+import { Shield, Users, LayoutDashboard, ExternalLink, LogOut } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 interface AdminHeaderProps {
   currentRole: "admin" | "counsellor";
@@ -10,6 +14,15 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ currentRole, onRoleSwitch }: AdminHeaderProps) {
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push("/admin/login");
+    router.refresh();
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950 text-white shadow-md">
       <Container size="lg">
@@ -57,11 +70,21 @@ export function AdminHeader({ currentRole, onRoleSwitch }: AdminHeaderProps) {
             </div>
 
             <Link href="/" target="_blank">
-              <Button variant="outline" size="sm" className="text-xs border-slate-700 text-slate-300 gap-1.5">
-                <span>Student Site</span>
+              <Button variant="outline" size="sm" className="text-xs border-slate-700 text-slate-300 hover:text-white gap-1.5 h-8">
                 <ExternalLink className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Student Site</span>
               </Button>
             </Link>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSignOut}
+              className="text-xs border-red-900/50 text-red-400 hover:bg-red-500/10 hover:text-red-300 gap-1.5 h-8"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Sign Out</span>
+            </Button>
           </div>
         </div>
       </Container>
